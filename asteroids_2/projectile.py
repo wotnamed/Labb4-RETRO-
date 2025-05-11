@@ -3,7 +3,62 @@ import pygame
 import player
 import asteroid
 
+
 class Projectile:
+    """
+    The class used to represent projectiles within the game.
+
+    Attributes
+    ----------
+    size : int
+        Indicates the size of the projectile (1 or 2), which in turn determines the sprite of the instance.
+    velocity : float
+        Indicates the speed of the projectile which is used when updating its position.
+    p_x : float
+        Determines the projectile's x position within the game world.
+    p_y : float
+        Determines the projectile's y position within the game world.
+    facing_angle_rad : float
+        Determines which direction the projectile's sprite is pointing.
+    owner : object
+        Determines what object summoned the projectile.
+    sprite : pygame surface
+        The image representing the projectile.
+    traveling_angle_rad : float
+        The angle the projectile is traveling in.
+    mask : pygame mask
+        The object's mask.
+    mask_width : float
+        The object's mask's width.
+    mask_height : float
+        The object's mask's height.
+    owner_traveling_angle_rad : float
+        The angle the object that summoned the projectile was traveling in at the time of its summon.
+    owner_velocity
+        The velocity the owner was traveling at (old code?).
+    owner_vector : Tuple of floats
+        Describes the previous vector of the projectile owner.
+    additional_velocity : float
+        Value that describes the velocity of the projectile relative to its origin.
+    friendly : bool
+        Boolean which indicates if the projectile is friendly to the player or not.
+    duration : float
+        Value that describes the projectile's remaining time in this world.
+
+    Methods
+    -------
+    position_update(dt: float) -> None
+        updates the projectile's position.
+    calculate_angle(x: float, y: float) -> float
+        calculates an angle based on a vector specified in x and y
+    new_position_update(dt: float) -> None
+        Updates the projectile's position based on its additional vector, as well as the origin vector from the owner.
+    handle_collision(colliding_object: object) -> str
+        Returns a reaction by the projectile when said projectile has been fed a collision.
+    duration_update(dt: float) -> bool
+        Subtracts dt from 'duration', and if duration <= 0 returns False.
+    """
+
     def __init__(self, owner, x=None, y=None, velocity=300, angle=None, duration=2, size=1):
         self.size = size
         if velocity is not None:
@@ -41,10 +96,43 @@ class Projectile:
         self.duration = duration
 
     def position_update(self, dt):
+        """
+        Updates the position of the projectile based on its angle and velocity, as well as the amount time passed (dt).
+        Parameters
+        ----------
+        dt : float
+            Delta time to update position in relation to
+
+        Returns
+        -------
+        None
+
+        Raises
+        None
+        """
         self.p_x += cos(self.facing_angle_rad) * self.velocity * dt
         self.p_y -= sin(self.facing_angle_rad) * self.velocity * dt
 
     def calculate_angle(self, x, y):
+        """
+        Calculates and returns an angle based on an input vector specified in x and y floats.
+
+        Parameters
+        ----------
+        x : float
+            An x value within a coordinate system
+        y : float
+            A y value within a coordinate system
+
+        Returns
+        -------
+        float
+            an angle specified in radians
+
+        Raises
+        ------
+        None
+        """
         if x != 0:
             if x > 0:
                 return atan(y/x)
@@ -56,6 +144,22 @@ class Projectile:
             return 3*pi/2
 
     def new_position_update(self, dt):
+        """
+        A new and refined method to update a projectile's position which accurately accounts for the summoner's vector.
+
+        Parameters
+        ----------
+        dt : float
+            The delta time since last tick.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+        """
         #  add initial velocity at facing angle as well as ship traveling vector
         if self.owner_traveling_angle_rad == None or 0:
             sub1 = self.owner_velocity * 29.82
@@ -73,6 +177,23 @@ class Projectile:
         self.p_y -= sin(self.traveling_angle_rad) * self.velocity * dt
 
     def handle_collision(self, colliding_object):
+        """
+        A method that handles collisions for the projectile based on the provided colliding_object.
+
+        Parameters
+        ----------
+        colliding_object : object
+            An object (preferably derived from one of the game's classes) to be reacted upon.
+
+        Returns
+        -------
+        str
+            The outcome of the collision to be fed to the collision handler in the game.
+
+        Raises
+        ------
+        None
+        """
         if isinstance(colliding_object, asteroid.Asteroid):
             return "hit"
         elif isinstance(colliding_object, player.Player):
@@ -84,6 +205,22 @@ class Projectile:
             pass
 
     def duration_update(self, dt):
+        """
+            Updates the remaining duration of the projectile.
+            Parameters
+            ----------
+            dt : float
+                The time passed during the game tick, and the value to be subtracted from duration.
+
+            Returns
+            -------
+            bool
+                False equates to that there is no remaining duration for the projectile.
+
+            Raises
+            ------
+            None
+            """
         self.duration -= dt
         if self.duration <= 0:
             return False

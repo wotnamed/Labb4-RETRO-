@@ -7,6 +7,52 @@ import random
 
 
 class Saucer:
+    """
+    An enemy to the player which aims to kill it.
+
+    Attributes
+    ----------
+    facing_angle_rad : float
+        An angle used to describe the objects orientation within the game world.
+    mass : int
+        The mass of the object, used for physics calculations
+    traveling_angle_rad : float
+        Describes the traveling angle of the saucer
+    thrust_force : int
+        Describes the forces the saucer's engine exert.
+    velocity : float
+        Describes the velocity of the saucer.
+    p_x : float
+        Describes the x position of the saucer within the game world.
+    p_y : float
+        Describes the y position of the saucer within the game world.
+    sprite : pygame surface
+        The image representing the saucer.
+    prev_x_v : float
+        The x component of the saucer's previous vector.
+    prev_y_v : float
+        The y component of the saucer's previous vector.
+    mask : pygame mask
+        The saucer's pygame mask used for collision detection.
+    mask_width : float
+        Used for collision detection.
+    mask_height : float
+        Used for collision detection.
+    target : object
+        The saucer's target.
+    shot_chance : int
+        The "chance" of the saucer firing every tick. 1 equates to once every tick, 1000 to roughly once every 1k ticks.
+
+    Methods
+    -------
+    calculate_angle(x: float, y: float) -> float
+        Calculates an angle based on a vector specified in x and y.
+    update(dt: float) -> str
+        Updates the saucer's current status, including position and angle. Might also cause the saucer to summon a projectile.
+    dice_roll(share: int) -> bool
+        Runs a random.randint with (1, share) and returns True if a certain value is rolled.
+    ...
+    """
     def __init__(self, x, y, enemy, tick_per_fire):
         self.facing_angle_rad = 0
         self.mass = 1
@@ -15,13 +61,9 @@ class Saucer:
         self.velocity = 0
         self.p_x = x
         self.p_y = y
-        self.steering_modifier = 1
-        self.rotational_energy = 0
-        self.rotational_velocity = 0
         self.sprite = pygame.image.load("textures/sauces_90.png").convert_alpha()
         self.prev_x_v = 0
         self.prev_y_v = 0
-        self.prev_tick_shot = False
         self.mask = None
         self.mask_width = None
         self.mask_height = None
@@ -38,12 +80,12 @@ class Saucer:
 
     def update(self, dt):
         self.aim_at_target()
-        if self.dice_roll(dt=dt, share=self.shot_chance):
+        if self.dice_roll(share=self.shot_chance):
             return "fire"
         if dt < 5:
             self.movement(0.1, dt)
 
-    def dice_roll(self, dt, share=1000):
+    def dice_roll(self, share=1000):
         roll = random.randint(1, int(share))
         if roll == share:
             return True
