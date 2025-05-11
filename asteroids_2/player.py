@@ -23,10 +23,15 @@ class Player:
         self.sprite = pygame.image.load("textures/ship_red_90.png").convert_alpha()
         self.prev_x_v = 0
         self.prev_y_v = 0
-        self.prev_tick_shot = False
+        self.prev_tick_shot = True
         self.mask = None
+        self.mask_width = None
+        self.mask_height = None
         self.invincible = False
         self.invincibility_duration = 0
+        self.powerup_1 = False
+        self.powerup_2 = False
+        self.powerup_3 = 0
         #  consider adding ammunition capacity
 
     def handle_collision(self, colliding_object):
@@ -40,6 +45,8 @@ class Player:
                 return "death"
             if isinstance(colliding_object, saucer.Saucer):
                 return "death"
+            else:
+                pass
 
     def tick(self, dt):
         if self.invincible:

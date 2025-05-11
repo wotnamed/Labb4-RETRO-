@@ -4,7 +4,8 @@ import player
 import asteroid
 
 class Projectile:
-    def __init__(self, owner, x=None, y=None, velocity=300, angle=None, duration=2):
+    def __init__(self, owner, x=None, y=None, velocity=300, angle=None, duration=2, size=1):
+        self.size = size
         if velocity is not None:
             self.velocity = owner.velocity*29.82 + velocity
         else:
@@ -17,11 +18,18 @@ class Projectile:
             self.p_y = owner.p_y
         if angle is not None:
             self.facing_angle_rad = angle
+        else:
+            self.facing_angle_rad = owner.facing_angle_rad
         self.owner = owner
-        self.facing_angle_rad = owner.facing_angle_rad
-        self.sprite = pygame.image.load("textures/projectile_90.png").convert_alpha()
+
+        if self.size == 1:
+            self.sprite = pygame.image.load("textures/projectile_90.png").convert_alpha()
+        elif self.size == 2:
+            self.sprite = pygame.image.load("textures/projectile_large.png")
         self.traveling_angle_rad = 0
         self.mask = None
+        self.mask_width = None
+        self.mask_height = None
         self.owner_traveling_angle_rad = owner.traveling_angle_rad
         self.owner_velocity = owner.velocity
         self.owner_vector = (self.owner.prev_x_v, self.owner.prev_y_v)
@@ -59,8 +67,6 @@ class Projectile:
         sub4 = sin(self.facing_angle_rad) * self.additional_velocity
         vector_x = (sub3 + self.owner_vector[0]/dt) #+sub1
         vector_y = -(sub4 + self.owner_vector[1]/dt) #  +sub2
-        print(self.owner_vector)
-        print()
         self.velocity = sqrt(vector_x**2 + vector_y**2)
         self.traveling_angle_rad = self.calculate_angle(vector_x, -vector_y)
         self.p_x += cos(self.traveling_angle_rad) * self.velocity * dt

@@ -1,6 +1,7 @@
 import random
 from math import sin, cos, atan, sqrt, pi
 import pygame
+import powerup
 
 class Asteroid:
     def __init__(self, mother=None, size=None, traveling_angle_rad=None, velocity=None, rotational_velocity=None, x=None, y=None):
@@ -47,6 +48,8 @@ class Asteroid:
             self.p_x = x
             self.p_y = y
         self.mask = None
+        self.mask_width = None
+        self.mask_height = None
     def position_update(self, dt):
         self.p_x += cos(self.traveling_angle_rad) * self.velocity * dt
         self.p_y -= sin(self.traveling_angle_rad) * self.velocity * dt
@@ -58,10 +61,13 @@ class Asteroid:
 
     def handle_collision(self, colliding_object):
         if not isinstance(colliding_object, Asteroid):
-            if self.size <= 1:
-                return "death"
+            if isinstance(colliding_object, powerup.Powerup):
+                pass
             else:
-                return "split"
+                if self.size <= 1:
+                    return "death"
+                else:
+                    return "split"
         else:
             pass
 

@@ -23,6 +23,8 @@ class Saucer:
         self.prev_y_v = 0
         self.prev_tick_shot = False
         self.mask = None
+        self.mask_width = None
+        self.mask_height = None
         self.target = enemy
         self.shot_chance = tick_per_fire
 
@@ -97,3 +99,5 @@ class Saucer:
             return "death"
         if isinstance(colliding_object, player.Player):
             return "death"
+        else:
+            pass
