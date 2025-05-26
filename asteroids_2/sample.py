@@ -273,12 +273,15 @@ class Main:
                         if self.ship.powerup_1:
                             self.score += 200
                         self.ship.powerup_1 = True
+                        self.ship.powerups[0] += 1
                     elif i.type == 2:
                         if self.ship.powerup_2:
                             self.score += 200
                         self.ship.powerup_2 = True
+                        self.ship.powerups[1] += 1
                     elif i.type == 3:
                         self.ship.powerup_3 += 1
+                        self.ship.powerups[2] += 1
                         self.ship.lives += 1
                     index = self.object_list.index(i)
                     del self.object_list[index]
@@ -305,14 +308,14 @@ class Main:
         if self.ship.invincible:
             text = f"Invincible! ({self.ship.invincibility_duration:.1f})"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 300))
-        if self.ship.powerup_1:
-            text = "Big shot"
+        if self.ship.powerups[0] > 0:
+            text = f"Big shot {self.ship.powerups[0]}"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 315))
-        if self.ship.powerup_2:
-            text = "Front splitter"
+        if self.ship.powerups[1] > 0:
+            text = f"Front splitter {self.ship.powerups[1]}"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 330))
         if self.ship.powerup_3 > 0:
-            text = f"Extra life (x{self.ship.powerup_3})"
+            text = f"Extra life (x{self.ship.powerups[2]})"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 345))
 
     def ship_stat_gui(self, canvas):
@@ -362,20 +365,26 @@ class Main:
         self.game_screen_gui(canvas)
 
     def fire_ship_cannon(self, velocity=300):
-        if not self.ship.powerup_1:  # if not big shot
+        if self.ship.powerups[0] == 0:  # if not big shot
             self.object_list.append(projectile.Projectile(self.ship, duration=2, velocity=velocity))
-            if self.ship.powerup_2:  # if front splitter
-                self.object_list.append(
-                    projectile.Projectile(self.ship, duration=2, angle=(self.ship.facing_angle_rad - 0.1), velocity=velocity))
-                self.object_list.append(
-                    projectile.Projectile(self.ship, duration=2, angle=(self.ship.facing_angle_rad + 0.1), velocity=velocity))
-        elif self.ship.powerup_1:  # if big shot
+            if self.ship.powerups[1] > 0:  # if front splitter
+                in_range = 1
+                for i in range(self.ship.powerups[1]):
+                    self.object_list.append(
+                        projectile.Projectile(self.ship, duration=2, angle=(self.ship.facing_angle_rad - 0.1*in_range), velocity=velocity))
+                    self.object_list.append(
+                        projectile.Projectile(self.ship, duration=2, angle=(self.ship.facing_angle_rad + 0.1*in_range), velocity=velocity))
+                    in_range += 1
+        elif self.ship.powerups[0] > 0:  # if big shot
             self.object_list.append(projectile.Projectile(self.ship, duration=2, size=2, velocity=velocity))
-            if self.ship.powerup_2:  # if front splitter
-                self.object_list.append(
-                    projectile.Projectile(self.ship, duration=2, size=2, angle=(self.ship.facing_angle_rad - 0.1), velocity=velocity))
-                self.object_list.append(
-                    projectile.Projectile(self.ship, duration=2, size=2, angle=(self.ship.facing_angle_rad + 0.1), velocity=velocity))
+            if self.ship.powerups[1] > 0:  # if front splitter
+                in_range = 1
+                for i in range(self.ship.powerups[1]):
+                    self.object_list.append(
+                        projectile.Projectile(self.ship, size=2, duration=2, angle=(self.ship.facing_angle_rad - 0.1 * in_range), velocity=velocity))
+                    self.object_list.append(
+                        projectile.Projectile(self.ship, size=2, duration=2, angle=(self.ship.facing_angle_rad + 0.1 * in_range), velocity=velocity))
+                    in_range += 1
 
     def react_to_user_input(self, keys):
         #  Acceleration / deceleration (deceleration would be engine_input = -1)
@@ -396,7 +405,7 @@ class Main:
         if keys[pygame.K_SPACE] and self.ship.prev_tick_shot is False:
             self.fire_ship_cannon()
             self.sfx_1.play()
-            self.ship.prev_tick_shot = True
+            self.ship.prev_tick_shot = True  #default: True
         elif not keys[pygame.K_SPACE]:
             self.ship.prev_tick_shot = False
         #  Feed input into ship

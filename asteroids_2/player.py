@@ -29,9 +29,10 @@ class Player:
         self.mask_height = None
         self.invincible = False
         self.invincibility_duration = 0
-        self.powerup_1 = False
-        self.powerup_2 = False
+        self.powerup_1 = False # def false
+        self.powerup_2 = False # def False
         self.powerup_3 = 0
+        self.powerups = [0, 0, 0]
         #  consider adding ammunition capacity
 
     def handle_collision(self, colliding_object):
