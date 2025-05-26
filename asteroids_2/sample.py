@@ -270,17 +270,16 @@ class Main:
             match result:
                 case "hit":
                     if i.type == 1:
-                        if self.ship.powerup_1:
+                        if self.ship.powerups[0] >= 1:
                             self.score += 200
-                        self.ship.powerup_1 = True
-                        self.ship.powerups[0] += 1
+                        else:
+                            self.ship.powerups[0] += 1
                     elif i.type == 2:
-                        if self.ship.powerup_2:
+                        if self.ship.powerups[1] >= 10:
                             self.score += 200
-                        self.ship.powerup_2 = True
-                        self.ship.powerups[1] += 1
+                        else:
+                            self.ship.powerups[1] += 1
                     elif i.type == 3:
-                        self.ship.powerup_3 += 1
                         self.ship.powerups[2] += 1
                         self.ship.lives += 1
                     index = self.object_list.index(i)
@@ -314,7 +313,7 @@ class Main:
         if self.ship.powerups[1] > 0:
             text = f"Front splitter {self.ship.powerups[1]}"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 330))
-        if self.ship.powerup_3 > 0:
+        if self.ship.powerups[2] > 0:
             text = f"Extra life (x{self.ship.powerups[2]})"
             canvas.blit(self.font_2.render(text, True, (85, 85, 255)), (20, 345))
 
